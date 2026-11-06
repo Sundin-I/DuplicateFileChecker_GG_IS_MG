@@ -13,7 +13,8 @@ using namespace std;
 
 int main(){
 
-	fs::path dataset_path = R"(H:\_UF files\Summer 2026\gen_images)";
+	//This file path is based on where my PC stores the 100K images
+	fs::path dataset_path = R"(H:\_UF files\Summer 2026\gen_images)"; //Once you download the dataset, you can edit this line to match your file path for the stored dataset
 
 	Btree_draft bt;
 
