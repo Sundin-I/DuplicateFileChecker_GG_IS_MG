@@ -25,7 +25,7 @@ Each node will contain:
 
   **Files with the same size will share one keys for their paths are stored together in the associated filePaths entry**
 
-###Functions
+##Functions
 
 - `insert()` = For inserting
 - `search()` = 
