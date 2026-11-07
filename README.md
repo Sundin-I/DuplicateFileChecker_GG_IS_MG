@@ -27,9 +27,17 @@ Each node will contain:
 
 ## Functions
 
--- `insert()` = For inserting
-- `search()` = 
-- `splitsChildren()`
-- `insertingNotFull()`
-- `printInOrder()`
-- `validator()`
+- `insert()` = For inserting each file size & its matching file path in the Btree
+- `search()` = For searching for the inserted file size & ends up returning the file path 
+- `splitsChildren()` = For balancing by splitting a full child node before making the median key a parent
+- `insertingNotFull()` = As the specific naming convention states, a file size/filepath will be inserted to a non-full node 
+- `printInOrder()` = I chose to use the Inorder traversal for the Bree's sorted file size order
+- `validator()` = My crazy amount of testers/structure properties checkers
+
+## Handing Duplicate File Sizes
+Upon inserting the needed files, the Btree will check if the file size already existed
+- Nonexistent? A new key & path will be inserted
+- Existent? A brand new path will be appended to the already existing
+
+**Note: Additional keys won't be given to duplicate file sizes**
+
