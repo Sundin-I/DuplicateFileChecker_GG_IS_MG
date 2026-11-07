@@ -18,16 +18,16 @@ Beyond that, here's a quick explanation:
 
 ## Structure
 Each node will contain:
-- is_leaf: as the name implies, confirms is a node is a leaf
-- keys: the files sizes will be stored in sorted order
-- filePaths: the files paths will be stored to align with each file size key
-- children: the pointer will be stored with children for internal nodes
+  - is_leaf: as the name implies, confirms is a node is a leaf
+  - keys: the files sizes will be stored in sorted order
+  - filePaths: the files paths will be stored to align with each file size key
+  - children: the pointer will be stored with children for internal nodes
 **Files with the same size will share one keys for their paths are stored together in the associated filePaths entry**
 
 ###Functions
 
 - `insert()` = For inserting
-- `search()`
+- `search()` = 
 - `splitsChildren()`
 - `insertingNotFull()`
 - `printInOrder()`
