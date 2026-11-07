@@ -56,11 +56,11 @@ Upon inserting the needed files, the Btree will check if the file size already e
 - `BT.insert(95, "& Other Stories.png");`
 
 ### Call search:
-`std::vector<std::string> results = BT.search(64);
+```std::vector<std::string> results = BT.search(64);
 for (const std::string& path : results) {
     std::cout <<path << std::endl;
-    }`
-
+    }
+```
 ### Don't forget to validate your tree
 std::cout << BT.validator()<< std::endl;
 
