@@ -27,7 +27,7 @@ Each node will contain:
 
 ## Functions
 
-- `insert()` = For inserting
+-- `insert()` = For inserting
 - `search()` = 
 - `splitsChildren()`
 - `insertingNotFull()`
