@@ -26,9 +26,9 @@ Each node will contain:
 
 ###Functions
 
-`insert()` = For inserting
-`search()`
-`splitsChildren()`
-`insertingNotFull()`
-`printInOrder()`
-`validator()`
+- `insert()` = For inserting
+- `search()`
+- `splitsChildren()`
+- `insertingNotFull()`
+- `printInOrder()`
+- `validator()`
