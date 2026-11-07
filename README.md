@@ -75,3 +75,46 @@ std::cout << BT.validator()<< std::endl;
 1_2mg.png
 1
 ```
+
+## Main.cpp testing the 100K image dataset
+
+```
+"H:\_UF files\Summer 2026\DuplicateFileChecker_GG_IS_MG\cmake-build-debug\Main.exe"
+Beginning dataset scan...
+Processed 10000 files...
+Processed 20000 files...
+Processed 30000 files...
+Processed 40000 files...
+Processed 50000 files...
+Processed 60000 files...
+Processed 70000 files...
+Processed 80000 files...
+Processed 90000 files...
+Processed 100000 files...
+
+====DATASET RESULTS====
+Total files processed: 104611
+Total files skipped: 0
+Unique file sizes:80932
+File types found:1
+
+====FILE TYPE DISTRIBUTION====
+.png: 104611
+Search groups tested:19375
+Search groups failed:0
+
+====DUPLICATE SIZE RESULTS====
+Group sharing file sizes: 0
+
+====B-tree VALIDATION====
+B-tree valid: 1
+
+====DUPLICATE SEARCH TEST====
+Searching for file size: 124207
+Expected path: 2
+Retrieved path: 2
+H:\_UF files\Summer 2026\gen_images\Women in Baseball.png
+H:\_UF files\Summer 2026\gen_images\Yanka Kupala State University of Grodno.png
+
+Process finished with exit code 0
+```
