@@ -80,6 +80,7 @@ int main(){
 
 	for (const auto& [size, count] : sizeFrequency) {
 		if (count > 1) {
+			duplicateSizeGroups++;
 			vector<string> results = bt.search(size);
 			searchTests++;
 
