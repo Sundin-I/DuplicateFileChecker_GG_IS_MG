@@ -94,7 +94,7 @@ int main(){
 
 
 	cout << endl << "====DUPLICATE SIZE RESULTS====" << endl;
-	cout << "Group sharing file sizes: " << duplicateSizeGroups << endl;
+	cout << "Groups sharing file sizes: " << duplicateSizeGroups << endl;
 
 	cout << endl << "====B-tree VALIDATION====" << endl;
 	cout << "B-tree valid: " << bt.validator() << endl;
