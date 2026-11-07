@@ -4,7 +4,7 @@
 
 ## Summary
 This is my implementation a Btree for our duplicate checker. 
-As intended it will organize file by their file sizes...unfortunately that's the most that's been developed. 
+As intended it will organize file by their file sizes. 
 To elaborate, I'm still trying to find a dataset with differing types, sizes, and surmounts to 100K files. 
 Beyond that, here's a quick explanation:
 
@@ -14,7 +14,7 @@ Beyond that, here's a quick explanation:
 - Key: File size(std::uintmax_t)
 - Associated values(std::vector<std::string>)
 - max. keys per node: 2t - 1 (for example, 3 keys when t = 2)
-- max. keys per node: t - 1 (for example, 1 key when t = 2)
+- min. keys per node: t - 1 (for example, 1 key when t = 2)
 
 ## Structure
 Each node will contain:
@@ -23,7 +23,7 @@ Each node will contain:
 - filePaths: the files paths will be stored to align with each file size key
 - children: the pointer will be stored with children for internal nodes
 
-  **Files with the same size will share one keys for their paths are stored together in the associated filePaths entry**
+  **Files with the same size will share one key for their paths are stored together in the associated filePaths entry**
 
 ## Functions
 
@@ -104,7 +104,7 @@ Search groups tested:19375
 Search groups failed:0
 
 ====DUPLICATE SIZE RESULTS====
-Group sharing file sizes: 0
+Group sharing file sizes: 19375
 
 ====B-tree VALIDATION====
 B-tree valid: 1
@@ -117,4 +117,8 @@ H:\_UF files\Summer 2026\gen_images\Women in Baseball.png
 H:\_UF files\Summer 2026\gen_images\Yanka Kupala State University of Grodno.png
 
 Process finished with exit code 0
+
 ```
+## Limits
+- Like I mentioned in Discord, I've only implemented as far as checking duplicates in a dataset of 100K images that are all .png images. I've only done the file size comparision.
+- I'm leaving it up to you guys if you still want the different file type idea.
