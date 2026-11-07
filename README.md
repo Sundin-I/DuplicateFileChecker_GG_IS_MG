@@ -76,7 +76,7 @@ std::cout << BT.validator()<< std::endl;
 1
 ```
 
-## Main.cpp testing the 100K image dataset
+## Main.cpp expected output when testing the 100K image dataset
 
 ```
 "H:\_UF files\Summer 2026\DuplicateFileChecker_GG_IS_MG\cmake-build-debug\Main.exe"
