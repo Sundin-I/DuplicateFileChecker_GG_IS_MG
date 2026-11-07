@@ -50,10 +50,10 @@ Upon inserting the needed files, the Btree will check if the file size already e
 - `Btree_draft BT;`
 
 ### Call insert:
-- `BT.insert(328, "$500 bill (U.S.).png");`
-- `BT.insert(64, "1mg.png");`
-- `BT.insert(64, "1_2mg.png");`
-- `BT.insert(95, "& Other Stories.png");`
+```BT.insert(328, "$500 bill (U.S.).png");```
+```BT.insert(64, "1mg.png");```
+```BT.insert(64, "1_2mg.png");```
+```BT.insert(95, "& Other Stories.png");```
 
 ### Call search:
 ```std::vector<std::string> results = BT.search(64);
