@@ -66,7 +66,7 @@ for (const std::string& path : results) {
 1mg.png
 1_2mg.png
 
-
+```
 ### Don't forget to validate your tree
 std::cout << BT.validator()<< std::endl;
 **If the structural validation passed, the output should be 1**
