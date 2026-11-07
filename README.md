@@ -9,14 +9,14 @@ To elaborate, I'm still trying to find a dataset with differing types, sizes, an
 Beyond that, here's a quick explanation:
 
 
-###Configuration
+## Configuration
 - min. degree: t = 2
 - Key: File size(std::uintmax_t)
 - Associated values(std::vector<std::string>)
 - max. keys per node: 2t - 1 (for example, 3 keys when t = 2)
 - max. keys per node: t - 1 (for example, 1 key when t = 2)
 
-###Structure
+## Structure
 Each node will contain:
 - is_leaf: as the name implies, confirms is a node is a leaf
 - keys: the files sizes will be stored in sorted order
@@ -26,4 +26,9 @@ Each node will contain:
 
 ###Functions
 
-`insert()`
+`insert()` = For inserting
+`search()`
+`splitsChildren()`
+`insertingNotFull()`
+`printInOrder()`
+`validator()`
