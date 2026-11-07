@@ -43,5 +43,30 @@ Upon inserting the needed files, the Btree will check if the file size already e
 
 ## How to start duplicate checking
 
-Use the Btree header:
-`#include "Btree_draft.h"`
+### Use the Btree header:
+- `#include "Btree_draft.h"`
+
+### Create a Btree:
+- `Btree_draft BT;`
+
+### Call insert:
+- `BT.insert(328, "$500 bill (U.S.).png");`
+- `BT.insert(64, "1mg.png");`
+- `BT.insert(64, "1_2mg.png");`
+- `BT.insert(95, "& Other Stories.png");`
+
+### Call search:
+`std::vector<std::string> results = BT.search(64);
+for (const std::string& path : results) {
+    std::cout <<path << std::endl;
+    }`
+
+### Should output
+`
+1mg.png
+1_2mg.png
+`
+
+### Don't forget to validate your tree
+std::cout << BT.validator()<< std::endl;
+**If the structural validation passed, the output should be 1**
