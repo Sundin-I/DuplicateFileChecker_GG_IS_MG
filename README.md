@@ -61,12 +61,14 @@ for (const std::string& path : results) {
     std::cout <<path << std::endl;
     }`
 
+### Don't forget to validate your tree
+std::cout << BT.validator()<< std::endl;
+
+**If the structural validation passed, the output should be 1**
+
 ### Should output
 ```
 1mg.png
 1_2mg.png
-
+1
 ```
-### Don't forget to validate your tree
-std::cout << BT.validator()<< std::endl;
-**If the structural validation passed, the output should be 1**
