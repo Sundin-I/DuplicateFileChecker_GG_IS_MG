@@ -41,3 +41,7 @@ Upon inserting the needed files, the Btree will check if the file size already e
 
 **Note: Additional keys won't be given to duplicate file sizes**
 
+## How to start duplicate checking
+
+Use the Btree header:
+```#include "Btree_draft.h"
