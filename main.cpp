@@ -5,25 +5,34 @@
 #include <unordered_map>
 #include <algorithm>
 #include <cctype>
+#include <map>
+#include <exception>
 
 #include "src/Btree_draft.h"
+#include "src/file.cpp"
 
-namespace fs = std::filesystem;
 using namespace std;
+namespace fs = filesystem;
 
 int main(){
+	string pathInput;
+	cout << "Please enter the path to the dataset:" << endl;
+	getline(cin, pathInput);
+	fs::path dataset_path = fs::path(pathInput);
 
-	//This file path is based on where my PC stores the 100K images
-	fs::path dataset_path = R"(H:\_UF files\Summer 2026\gen_images)"; //Once you download the dataset, you can edit this line to match your file path for the stored dataset
+	if (!fs::exists(dataset_path) || !fs::is_directory(dataset_path)) {
+        cerr << "Error: The provided path does not exist or is invalid." << endl;
+        return 1;
+    }
 
 	Btree_draft bt;
 
 	size_t totalFiles = 0;
 	size_t skippedFiles = 0;
-	size_t searchFailures = 0;
-	size_t searchTests = 0;
+	vector<File> allFiles;
+	allFiles.reserve(1000000); // Reserving space for 1 mil files to reduce reallocations
 
-	unordered_map<uintmax_t, size_t> sizeFrequency;
+	unordered_map<string, vector<File*>> fileGroups;
 	unordered_map<string, size_t> extensionFrequency;
 
 	try {
@@ -41,18 +50,27 @@ int main(){
 				continue;
 			}
 
-			string filePath = entry.path().string();
+			File newFile;
+			newFile.fileName = entry.path().filename().string();
+			newFile.filePath = entry.path().string();
+			newFile.fileSize = fileSize;
 
 			string fileType = entry.path().extension().string();
 
 			transform(fileType.begin(), fileType.end(), fileType.begin(), [](unsigned char c) {
 				return static_cast<char>(tolower(c));
 			});
-			bt.insert(fileSize, filePath);
+			newFile.extension = fileType;
+			allFiles.push_back(newFile);
+			File* filePtr = &allFiles.back();
 
-			sizeFrequency[fileSize]++;
+			bt.insert(newFile.fileSize, newFile.filePath);
+
+			// Groupting files by size and extension as the potential duplicates
+			string key = to_string(newFile.fileSize) + "_" + newFile.extension;
+            fileGroups[key].push_back(filePtr);
+
 			extensionFrequency[fileType]++;
-
 			totalFiles++;
 
 			if (totalFiles % 10000 == 0) {
@@ -64,64 +82,104 @@ int main(){
 		cerr << "Filesystem error: " << e.what() << endl;
 		return 1;
 	}
+
+	// Report initial dataset scan results
 	cout << endl << "====DATASET RESULTS====" << endl;
 	cout << "Total files processed: " << totalFiles << endl;
 	cout << "Total files skipped: " << skippedFiles << endl;
-	cout << "Unique file sizes:" << sizeFrequency.size() << endl;
 	cout << "File types found:" << extensionFrequency.size() << endl;
+	cout << "Total unique size+extension keys: " << fileGroups.size() << endl;
+	cout << "Analyzing potential duplicate groups..." << endl;
 
+	try {
+        size_t confirmedDuplicateFilesTotal = 0;
+        struct DuplicateSet {
+            string hash;
+            vector<File*> files;
+        };
+        vector<DuplicateSet> allDuplicateSets;
+        
+        // Filter out groups with only 1 file for a smaller dataset
+        for (auto& [key, group] : fileGroups) {
+            if (group.size() <= 1)  {
+                continue;
+            }
 
-	cout << endl << "====FILE TYPE DISTRIBUTION====" << endl;
+            // Hash files in this group
+            for (File* filePtr : group) {
+                filePtr->computeHash();
+            }
 
-	for (const auto& [extension, count] : extensionFrequency) {
-		cout << (extension.empty() ? "[no extension]" : extension) << ": " << count << endl;
-	}
-	size_t duplicateSizeGroups = 0;
+            unordered_map<string, vector<File*>> hashGroups;
+            hashGroups.reserve(group.size());
 
-	for (const auto& [size, count] : sizeFrequency) {
-		if (count > 1) {
-			duplicateSizeGroups++;
-			vector<string> results = bt.search(size);
-			searchTests++;
+            for (File* filePtr : group) {
+                if (!filePtr->contentHash.empty()) {
+                    hashGroups[filePtr->contentHash].push_back(filePtr);
+                }
+            }
 
-			if (results.size() != count) {
-				searchFailures++;
-			}
-		}
-	}
-	cout << "Search groups tested:" << searchTests << endl;
-	cout << "Search groups failed:" << searchFailures << endl;
+            // Collect confirmed duplicates
+            for (auto& [hash, exactMatchGroup] : hashGroups) {
+                if (exactMatchGroup.size() > 1) {
+                    allDuplicateSets.push_back({hash, move(exactMatchGroup)});
+                }
+            }
+        }
 
+        // Iterates through confirmed duplicates to display them with an id for user selection
+        map<int, vector<File*>> confirmedDuplicateGroups;
+        int duplicateSetIndex = 1;
 
-	cout << endl << "====DUPLICATE SIZE RESULTS====" << endl;
-	cout << "Groups sharing file sizes: " << duplicateSizeGroups << endl;
+        for (auto& dupSet : allDuplicateSets) {
+            confirmedDuplicateGroups[duplicateSetIndex] = dupSet.files;
 
-	cout << endl << "====B-tree VALIDATION====" << endl;
-	cout << "B-tree valid: " << bt.validator() << endl;
+            cout << "\n-==== DUPLICATE GROUP #" << duplicateSetIndex++ << " ====" << endl;
+            // TODO: Remove the hash in the output, I am only leaving it for debugging purposes for now
+            cout << "Hash: " << dupSet.hash << endl;
+            cout << "Matching Files:" << endl;
+            for (File* dupFile : dupSet.files) {
+                cout << "   " << dupFile->filePath << endl;
+                confirmedDuplicateFilesTotal++;
+            }
+        }
 
-	cout << endl << "====DUPLICATE SEARCH TEST====" << endl;
+        // Report duplicate analysis results
+        cout << endl << "====DUPLICATE ANALYSIS RESULTS====" << endl;
+        cout << "Confirmed duplicate groups found: " << confirmedDuplicateGroups.size() << endl;
+        cout << "Confirmed duplicate files (via hash match): " << confirmedDuplicateFilesTotal << endl;
 
-	bool searchTested = false;
+        // This is the interface where the user will inspect duplicate groups and decide which to delete from
+        if (!confirmedDuplicateGroups.empty()) {
+            int chosenKey;
+            cout << "\nWhich duplicate group would you like to delete from? (Enter the group number or 0 to exit): ";
 
-	for (const auto& [size, count] : sizeFrequency) {
-		if (count > 1) {
-			vector<string> results = bt.search(size);
+            while (cin >> chosenKey && chosenKey != 0) {
+                auto it = confirmedDuplicateGroups.find(chosenKey);
 
-			cout << "Searching for file size: " << size << endl;
-			cout << "Expected path: " << count << endl;
-			cout << "Retrieved path: " << results.size() << endl;
+                if (it != confirmedDuplicateGroups.end()) {
+                    cout << "\nRedisplaying Duplicate Group #" << chosenKey << endl;
+                    for (const File* filePtr : it->second) {
+                        cout << "   " << filePtr->filePath << endl;
+                    }
 
-			for (size_t i = 0; i < min(results.size(), size_t(5)); i++) {
-				cout << results[i] << endl;
-			}
-			searchTested = true;
-			break;
-		}
-	}
-	if (!searchTested) {
-		cout << "No repeated file size were found." << endl;
-	}
+                    // TODO: Implement deletion logic here
+                } else {
+                    cout << "Invalid duplicate group number. Please try again." << endl;
+                }
 
-	return 0;
+                cout << "\nEnter another group number to delete from (or 0 to exit): ";
+            }
+        }
+    }
+    catch (const exception& e) {
+        cerr << "Error during duplicate analysis: " << e.what() << endl;
+        return 1;
+    }
 
+    // B-Tree Validation
+    cout << endl << "====B-tree VALIDATION====" << endl;
+    cout << "B-tree valid: " << bt.validator() << endl;
+
+    return 0;
 }
