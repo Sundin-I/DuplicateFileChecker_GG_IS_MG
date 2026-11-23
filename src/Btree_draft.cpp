@@ -111,12 +111,6 @@ void Btree_draft::insert(std::uintmax_t fileSize, const std::string & filePath) 
         return;
     }
 
-    std::vector<std::string> existingPaths = searchNode(root.get(), fileSize);
-    if (!existingPaths.empty()) {
-        insertingNotFull(root.get(), fileSize, filePath);
-        return;
-    }
-
     const std::size_t maxKeys = static_cast<std::size_t>(2 * minDegree - 1);
 
     if (root->keys.size() == maxKeys) {
@@ -259,5 +253,6 @@ bool Btree_draft::validator() const {
 
     return Nodevalidation(root.get(), nullptr, nullptr, 0, leafDepth, true);
 }
+
 
 
