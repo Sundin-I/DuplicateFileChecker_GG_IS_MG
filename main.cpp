@@ -130,6 +130,7 @@ int main(){
         // Iterates through confirmed duplicates to display them with an id for user selection
         map<int, vector<File*>> confirmedDuplicateGroups;
         int duplicateSetIndex = 1;
+        uintmax_t totalWastedBytes = 0;
 
         for (auto& dupSet : allDuplicateSets) {
             confirmedDuplicateGroups[duplicateSetIndex] = dupSet.files;
@@ -142,33 +143,136 @@ int main(){
                 cout << "   " << dupFile->filePath << endl;
                 confirmedDuplicateFilesTotal++;
             }
+            // Every copy beyond the first is wasted space
+            totalWastedBytes += (dupSet.files.size() - 1) * dupSet.files.front()->fileSize;
         }
 
         // Report duplicate analysis results
         cout << endl << "====DUPLICATE ANALYSIS RESULTS====" << endl;
         cout << "Confirmed duplicate groups found: " << confirmedDuplicateGroups.size() << endl;
         cout << "Confirmed duplicate files (via hash match): " << confirmedDuplicateFilesTotal << endl;
+        cout << "Total space wasted by duplicates: " << totalWastedBytes << " bytes" << endl;
 
         // This is the interface where the user will inspect duplicate groups and decide which to delete from
         if (!confirmedDuplicateGroups.empty()) {
             int chosenKey;
+            size_t sessionDeletedCount = 0;
+            uintmax_t sessionFreedBytes = 0;
+            vector<string> sessionDeletedPaths;
+
             cout << "\nWhich duplicate group would you like to delete from? (Enter the group number or 0 to exit): ";
 
             while (cin >> chosenKey && chosenKey != 0) {
                 auto it = confirmedDuplicateGroups.find(chosenKey);
 
-                if (it != confirmedDuplicateGroups.end()) {
-                    cout << "\nRedisplaying Duplicate Group #" << chosenKey << endl;
-                    for (const File* filePtr : it->second) {
-                        cout << "   " << filePtr->filePath << endl;
-                    }
-
-                    // TODO: Implement deletion logic here
-                } else {
+                if (it == confirmedDuplicateGroups.end()) {
                     cout << "Invalid duplicate group number. Please try again." << endl;
+                    cout << "\nEnter another group number to delete from (or 0 to exit): ";
+                    continue;
                 }
 
+                vector<File*>& group = it->second;
+                if (group.size() < 2) {
+                    cout << "Group #" << chosenKey << " has no duplicates left." << endl;
+                    cout << "\nEnter another group number to delete from (or 0 to exit): ";
+                    continue;
+                }
+
+                // 1. List the group with numbers so the user can pick a file to keep
+                cout << "\nDuplicate Group #" << chosenKey << " (" << group[0]->fileSize << " bytes each)" << endl;
+                for (size_t i = 0; i < group.size(); i++) {
+                    cout << "   [" << i + 1 << "] " << group[i]->filePath << endl;
+                }
+                cout << "Enter the number of the file to KEEP (0 to cancel): ";
+
+                int keepChoice;
+                if (!(cin >> keepChoice)) {
+                    break;
+                }
+                if (keepChoice < 1 || keepChoice > static_cast<int>(group.size())) {
+                    cout << "Cancelled. No files deleted." << endl;
+                    cout << "\nEnter another group number to delete from (or 0 to exit): ";
+                    continue;
+                }
+                File* keeper = group[keepChoice - 1];
+
+                // 2. Build the delete list, verifying each file byte-by-byte against the keeper
+                vector<File*> toDelete;
+                uintmax_t bytesToFree = 0;
+                for (File* filePtr : group) {
+                    if (filePtr == keeper) {
+                        continue;
+                    }
+                    if (sameContent(*keeper, *filePtr)) {
+                        toDelete.push_back(filePtr);
+                        bytesToFree += filePtr->fileSize;
+                    } else {
+                        cout << "   Skipping (content differs or unreadable): " << filePtr->filePath << endl;
+                    }
+                }
+
+                if (toDelete.empty()) {
+                    cout << "Nothing to delete in this group." << endl;
+                    cout << "\nEnter another group number to delete from (or 0 to exit): ";
+                    continue;
+                }
+
+                cout << "\nKeeping: " << keeper->filePath << endl;
+                cout << "The following " << toDelete.size() << " file(s) will be deleted ("
+                     << bytesToFree << " bytes):" << endl;
+                for (const File* filePtr : toDelete) {
+                    cout << "   " << filePtr->filePath << endl;
+                }
+
+                // 3. Second input to confirm
+                cout << "Type DELETE to confirm, anything else to cancel: ";
+                string confirm;
+                if (!(cin >> confirm)) {
+                    break;
+                }
+                if (confirm != "DELETE") {
+                    cout << "Cancelled. No files deleted." << endl;
+                    cout << "\nEnter another group number to delete from (or 0 to exit): ";
+                    continue;
+                }
+
+                // 4. Delete only the duplicates and report what happened
+                size_t deletedCount = 0;
+                uintmax_t freedBytes = 0;
+                vector<File*> remaining;
+                for (File* filePtr : group) {
+                    bool shouldDelete = find(toDelete.begin(), toDelete.end(), filePtr) != toDelete.end();
+                    if (!shouldDelete) {
+                        remaining.push_back(filePtr);
+                        continue;
+                    }
+                    error_code ec;
+                    if (fs::remove(filePtr->filePath, ec)) {
+                        cout << "   Deleted: " << filePtr->filePath << endl;
+                        deletedCount++;
+                        freedBytes += filePtr->fileSize;
+                        sessionDeletedPaths.push_back(filePtr->filePath);
+                    } else {
+                        cout << "   FAILED to delete: " << filePtr->filePath
+                             << (ec ? " (" + ec.message() + ")" : " (file not found)") << endl;
+                        remaining.push_back(filePtr);
+                    }
+                }
+                group = move(remaining); // so the same group can't be deleted from twice
+
+                sessionDeletedCount += deletedCount;
+                sessionFreedBytes += freedBytes;
+                cout << "Deleted " << deletedCount << " file(s), freed " << freedBytes << " bytes." << endl;
+
                 cout << "\nEnter another group number to delete from (or 0 to exit): ";
+            }
+
+            // 5. Session summary
+            cout << endl << "====DELETION SUMMARY====" << endl;
+            cout << "Total files deleted: " << sessionDeletedCount << endl;
+            cout << "Total space freed: " << sessionFreedBytes << " bytes" << endl;
+            for (const string& path : sessionDeletedPaths) {
+                cout << "   " << path << endl;
             }
         }
     }
