@@ -123,3 +123,35 @@ Process finished with exit code 0
 ## Limits
 - Like I mentioned in Discord, I've only implemented as far as checking duplicates in a dataset of 100K images that are all .png images. I've only done the file size comparision.
 - I'm leaving it up to you guys if you still want the different file type idea.
+
+  
+## Performance Benchmark
+The newly committed file "performanceComparision.cpp," effectively compares the insertion and grouping performance of Isabelle's Btree and Gabriel's hashmap. Note: Both data structures would be using the safe 100K dataset.
+
+### To Complie:
+From the project's root directory, open a run a terminal and run:
+```
+g++ -std=c++17 -02 src/performanceComparision.cpp src/Btree_draft.cpp -o performanceComparision
+```
+### To Run:
+For Windows run the following executable:
+```
+performanceComparision
+```
+For Linux/macOS:
+```
+./performanceComparision
+```
+### The program's overall tasks:
+1. Collects file sizes + paths
+2. Insert the records (in this case, the 100K images) in both data structures
+3. Actively measures insertion time
+4. Repeats step 3 for at least 10 trials
+5. validator is constantly keeping tabs
+6. Compares the groups coming from the data structures
+7. In the aftermath, there are displayed individual trial times and average performance results.
+
+## Average insertion time between both data structure:
+- B Tree: 168.30 ms
+- Unordered Map: 52.78 ms (three times faster)
+
