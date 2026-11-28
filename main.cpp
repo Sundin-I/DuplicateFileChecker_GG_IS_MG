@@ -121,11 +121,27 @@ int main(){
 
             // Collect confirmed duplicates
             for (auto& [hash, exactMatchGroup] : hashGroups) {
-                if (exactMatchGroup.size() > 1) {
-                    allDuplicateSets.push_back({hash, move(exactMatchGroup)});
+                vector<vector<File*>> contentGroups;
+              
+                for (File* candidate : candidates) {
+                  bool place = false;
+                  for (auto& contentGroup : contentGroups) {
+                    if (sameContent(*contentGroup.front(), *candidate)) {
+                      contentGroup.push_back(candidate);
+                      placed = true;
+                      break;
+                    }
+                  }
+                  if(!placed) {
+                    contentGroups.push_back({candidate});
+                  }
+                }
+                for (auto& contentGroup : contentGroups) {
+                  if (contentGroup.size() > 1) {
+                    allDuplicateSets.push_back({hash, move(contentGroup)})
+                  }
                 }
             }
-        }
 
         // Iterates through confirmed duplicates to display them with an id for user selection
         map<int, vector<File*>> confirmedDuplicateGroups;
