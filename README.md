@@ -5,7 +5,7 @@
 - When working with large collections of images and other files, there will be cases of duplicate files that consume unnecessary storage space. It's quite taxing to look for identical files when filenames aren't very distinguishable to go by.
 - As a result, Team GIMfinity of University of Florida came up with a solution.
 
-##Team GIMfinity:
+## Team GIMfinity:
 - Isabelle Sundin starting things off with the B tree implementation and created the performanceComparision().
 - Gabriel Goluch // add here
 - Madasion Garrison //
