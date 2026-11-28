@@ -7,8 +7,8 @@
 
 ## Team GIMfinity:
 - Isabelle Sundin starting things off with the B tree implementation and created the performanceComparision().
-- Gabriel Goluch // add here
-- Madasion Garrison //
+- Gabriel Goluch // Add here
+- Madasion Garrison// Add here
 
 
 ## Overview
