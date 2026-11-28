@@ -1,8 +1,15 @@
 # COP3530 Project 3 - Duplicate Checker
 
+
 ## Reason for the implementation
 - When working with large collections of images and other files, there will be cases of duplicate files that consume unnecessary storage space. It's quite taxing to look for identical files when filenames aren't very distinguishable to go by.
 - As a result, Team GIMfinity of University of Florida came up with a solution.
+
+##Team GIMfinity:
+- Isabelle Sundin starting things off with the B tree implementation and created the performanceComparision().
+- Gabriel Goluch // add here
+- Madasion Garrison //
+
 
 ## Overview
 - This is an implementation of a program that checks for duplicate files by scanning a directory that the user provides, organizing the file's information, points out the duplicates, and has the addition function to delete any copy.
@@ -185,7 +192,80 @@ For Linux/macOS:
 6. Compares the groups coming from the data structures
 7. In the aftermath, there are displayed individual trial times and average performance results.
 
+## Expected Output based on 10 trials:
+```
+Files collected from dataset: 104611
+
+Trial 1
+B-tree insertion: 387.649ms
+Hashmap insertion: 69.5792ms
+Btree valid: 1
+Groups match: 1
+
+Trial 2
+B-tree insertion: 169.963ms
+Hashmap insertion: 92.3739ms
+Btree valid: 1
+Groups match: 1
+
+Trial 3
+B-tree insertion: 208.345ms
+Hashmap insertion: 59.208ms
+Btree valid: 1
+Groups match: 1
+
+Trial 4
+B-tree insertion: 224.943ms
+Hashmap insertion: 96.8444ms
+Btree valid: 1
+Groups match: 1
+
+Trial 5
+B-tree insertion: 998.134ms
+Hashmap insertion: 173.88ms
+Btree valid: 1
+Groups match: 1
+
+Trial 6
+B-tree insertion: 379.052ms
+Hashmap insertion: 102.123ms
+Btree valid: 1
+Groups match: 1
+
+Trial 7
+B-tree insertion: 673.158ms
+Hashmap insertion: 238.722ms
+Btree valid: 1
+Groups match: 1
+
+Trial 8
+B-tree insertion: 979.29ms
+Hashmap insertion: 422.251ms
+Btree valid: 1
+Groups match: 1
+
+Trial 9
+B-tree insertion: 480.82ms
+Hashmap insertion: 117.209ms
+Btree valid: 1
+Groups match: 1
+
+Trial 10
+B-tree insertion: 362.106ms
+Hashmap insertion: 110.628ms
+Btree valid: 1
+Groups match: 1
+
+-----AVERAGE RESULTS------
+Files processed: 104611
+Average Btree insertion: 486.346ms
+Average hashmap insertion: 148.282ms
+Unique file sizes: 80932
+All correctness checks passed.
+```
+
+
 ## Average insertion runtime between both data structure:
-- B Tree: 168.30 ms
-- Unordered Map: 52.78 ms (approximately 3.03 times faster)
+- B Tree: 486.346 ms
+- Hash Map: 148.282 ms (approximately 3.03 times faster)
 
